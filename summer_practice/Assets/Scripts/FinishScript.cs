@@ -10,7 +10,7 @@ public class FinishScript : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Finish")) // Проверяем тег объекта, с которым столкнулся игрок
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex - 1);
+            SceneManager.LoadScene(1);
         }
     }
     

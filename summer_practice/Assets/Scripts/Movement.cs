@@ -2,10 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
- 
+
 public enum Speeds { Slow = 0, Normal = 1, Fast = 2, Faster = 3, Fastest = 4 };
 public enum Gamemodes { Cube = 0, Ship = 1 };
-public enum Gravity { Upright = 1, Upsidedown = -1 };
+
 
 public class Movement : MonoBehaviour
 {
@@ -21,6 +21,8 @@ public class Movement : MonoBehaviour
 
     Rigidbody2D rb;
 
+    int Gravity = 1;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -29,7 +31,16 @@ public class Movement : MonoBehaviour
     void Update()
     {
         transform.position += Vector3.right * SpeedValues[(int)CurrentSpeed] * Time.deltaTime;
+        Invoke(CurrentGamemode.ToString(), 0);
+        
+    }
 
+    bool OnGround()
+    {
+        return Physics2D.OverlapBox(GroundCheckTransform.position + Vector3.up - Vector3.up * (Gravity - 1 / -2), Vector2.right * 1.1f + Vector2.up * GroundCheckRadius, 0, GroundMask);
+    }
+    void Cube()
+    {
         if (OnGround())
         {
             Vector3 Rotation = Sprite.rotation.eulerAngles;
@@ -39,21 +50,16 @@ public class Movement : MonoBehaviour
             if (Input.GetMouseButton(0))
             {
                 rb.velocity = Vector2.zero;
-                rb.AddForce(Vector2.up * 26.6581f, ForceMode2D.Impulse);
+                rb.AddForce(Vector2.up * 26.6581f * Gravity, ForceMode2D.Impulse);
             }
         }
         else
         {
-            Sprite.Rotate(Vector3.back, 452.4152186f * Time.deltaTime);
+            Sprite.Rotate(Vector3.back, 452.4152186f * Time.deltaTime*Gravity);
         }
     }
 
-    bool OnGround()
-    {
-        return Physics2D.OverlapCircle(GroundCheckTransform.position, GroundCheckRadius, GroundMask);
-    }
-
-    public void ChangeThroughPortal(Gamemodes Gamemode, Speeds Speed, Gravity gravity, int State)
+    public void ChangeThroughPortal(Gamemodes Gamemode, Speeds Speed, int gravity, int State)
     {
         switch (State)
         {
@@ -64,6 +70,7 @@ public class Movement : MonoBehaviour
                 CurrentGamemode = Gamemode;
                 break;
             case 2:
+                Gravity = gravity;
                 rb.gravityScale = Mathf.Abs(rb.gravityScale) * (int)gravity;
                 break;
         }
